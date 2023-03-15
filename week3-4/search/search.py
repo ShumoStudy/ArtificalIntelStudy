@@ -87,7 +87,54 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    print("-- SEARCH with DFS --")
+    # DFS with stack
+    frontier = util.Stack()
+    initState = problem.getStartState()
+    frontier.push(initState)
+    # node pointers
+    parentOf = {}
+    actionTo = {}
+    pathCostOf = {}
+    parentOf[initState] = None
+    actionTo[initState] = None
+    pathCostOf[initState] = 0
+    # explored
+    exploredSet = set()
+    exploredSet.add(initState)
+    # DFS
+    while not frontier.isEmpty():
+        thisNode = frontier.pop()
+        # display
+        # print "Now: ", thisNode
+        # explored
+        if problem.isGoalState(thisNode):
+            # solution found
+            # traceback
+            actionList = []
+            u = thisNode
+            while parentOf[u]:
+                actionList.append(actionTo[u])
+                u = parentOf[u]
+            actionList.reverse()
+            return actionList
+        else:
+            # expand thisNode
+            for successorNode, action, actionCost in problem.getSuccessors(thisNode):
+                # avoid redundant paths
+                if (successorNode in exploredSet): continue
+                exploredSet.add(successorNode)
+                # register pointers
+                actionTo[successorNode] = action
+                parentOf[successorNode] = thisNode
+                pathCostOf[successorNode] = pathCostOf[thisNode] + actionCost
+                frontier.push(successorNode)
+    # no solution found
+    print("No solution found!")
+    return []
+
+    # util.raiseNotDefined()
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
