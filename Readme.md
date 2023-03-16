@@ -51,7 +51,17 @@
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    
+代码解释
 
+    这段代码实现了一个使用深度优先搜索（DFS）算法的通用搜索算法，以求解问题（problem）的解决方案。
+    它将起始状态（initState）加入一个堆栈（frontier）中，并通过使用节点指针（parentOf、actionTo 和 pathCostOf）
+    和探索集合（exploredSet）来跟踪搜索过程中访问过的状态。
+    在算法的主循环中，每次从堆栈中取出一个节点（thisNode），并检查它是否是目标状态。
+    如果是，算法将使用指针回溯到起始状态，并将路径上的每个动作添加到一个列表中，并将该列表反转并返回作为最终的解决方案。
+    如果当前节点不是目标状态，则算法会将其所有的未探索子节点添加到堆栈中，并将其加入探索集合。
+    然后，算法更新指针和路径成本，并继续迭代堆栈，直到找到目标状态或堆栈为空。如果搜索完整个状态空间后，仍然没有找到解决方案，则算法返回一个空列表。
+    
 ### question2:
 
     Search the shallowest nodes in the search tree first.
