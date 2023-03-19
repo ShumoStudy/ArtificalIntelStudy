@@ -88,16 +88,28 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    stack = [(problem.getStartState(), [problem.getStartState()])]
+    "搜索深度优先搜索（DFS）算法，应该返回到达目标状态的行动列表。需要实现图搜索算法。"
+
     visited = set()
-    while stack:
-        node, path = stack.pop()
-        if problem.isGoalState(node):
-            return path
-        visited.add(node)
-        for neighbor in problem.getSuccessors(node):
-            if neighbor not in visited:
-                stack.append((neighbor, path + [neighbor]))
+    stack = util.Stack()
+
+    # Push the starting state and path to the stack
+    stack.push((problem.getStartState(), []))
+
+    while not stack.isEmpty():
+        state, actions = stack.pop()
+
+        if problem.isGoalState(state):
+            return actions
+
+        if state not in visited:
+            visited.add(state)
+
+            for successor, action, step_cost in problem.getSuccessors(state):
+                if successor not in visited:
+                    # Add the successor and the actions required to reach it
+                    stack.push((successor, actions + [action]))
+
     return []
 
 # question2
@@ -105,71 +117,59 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    # 使用队列保存待搜索的节点
-    queue = util.Queue()
-    # 将起始节点放入队列中
-    queue.append(problem.getStartState())
-    # 使用一个字典记录已经访问过的节点
-    visited = {}
-    visited[problem.getStartState()] = None
+    "搜索广度优先搜索（BFS）算法，应该返回到达目标状态的行动列表。"
+    from util import Queue
+    queue = Queue()
+    visited = set()
+    queue.push((problem.getStartState(), []))
 
-    # 开始搜索
-    while queue:
-        # 取出队列头部节点
-        node = queue.popleft()
-        # 如果该节点是目标节点，结束搜索并返回路径
-        if problem.isGoalState(node):
-            path = []
-            while node is not None:
-                path.append(node)
-                node = visited[node]
-            return path[::-1]
-        # 否则，将该节点的所有未访问的邻居节点加入队列中
-        for neighbor in problem.getSuccessors(node):
-            if neighbor not in visited:
-                queue.append(neighbor)
-                visited[neighbor] = node
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+        if problem.isGoalState(state):
+            return actions
+        if state not in visited:
+            visited.add(state)
+            for successor, action, step_cost in problem.getSuccessors(state):
+                queue.push((successor, actions + [action]))
 
-    # 搜索结束，未找到目标节点，返回空路径
     return []
-
-
-    # util.raiseNotDefined()
-
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    from queue import PriorityQueue
 
-    """
-        最小代价优先搜索算法
-        """
-    startState = problem.getStartState()
-    if problem.isGoalState(startState):
-        return []
+    # Frontier is a priority queue ordered by path cost
+    frontier = PriorityQueue()
+    # Add the starting node to the frontier
+    start_node = (problem.getStartState(), [], 0)
+    frontier.put(start_node, 0)
 
-    frontier = util.PriorityQueue()
-    frontier.push((0, [startState], []))
+    # Set of explored states
     explored = set()
 
     while not frontier.empty():
-        node = frontier.get()
-        state = node[1][-1]
-        path = node[2]
+        # Pop the node with the lowest path cost
+        node, path, path_cost = frontier.get()
 
-        if problem.isGoalState(state):
+        # Check if the current node is the goal state
+        if problem.isGoalState(node):
             return path
 
-        if state not in explored:
-            explored.add(state)
+        # Add the current node to the explored set
+        explored.add(node)
 
-            for successor, action, cost in problem.getSuccessors(state):
-                if successor not in explored:
-                    totalCost = node[0] + cost
-                    successorPath = path + [action]
-                    frontier.put((totalCost, node[1] + [successor], successorPath))
+        # Expand the current node and add its children to the frontier
+        for child, action, step_cost in problem.getSuccessors(node):
+            if child not in explored:
+                # Calculate the total path cost to the child
+                child_path_cost = path_cost + step_cost
+                # Create a new path to the child by adding the action to the current path
+                child_path = path + [action]
+                # Add the child to the frontier with the total path cost as priority
+                frontier.put((child, child_path, child_path_cost), child_path_cost)
 
+    # If the frontier is empty and no goal was found, return None
     return None
-    # util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -181,43 +181,26 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # util.raiseNotDefined()
-    print("Start:", problem.getStartState())
-    print("Start heuristic: ", problem, heuristic(problem.getStartState(), problem))
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    "搜索A*搜索算法，应该返回到达目标状态的行动列表。使用提供的启发式函数估计从当前状态到最近目标的成本"
+    visited = set()  # 已访问状态集合
+    pq = util.PriorityQueue()  # 优先队列，按照总代价从小到大存储状态节点
+    pq.push((problem.getStartState(), [], 0), 0)  # 将初始状态加入队列中
 
-    visited, frontier = set(), [
-        [
-            problem.getStartState(),
-            0,
-            0
-        ]
-    ]
+    while not pq.isEmpty():  # 当队列不为空时
+        currState, actions, currCost = pq.pop()  # 取出队列中的节点
 
-    while frontier:
-        node = frontier.pop(0)
-        if node[0] not in visited:
-            visited.add(node[0])
-            if problem.isGoalState(node[0]):
-                rw = buildRocksWay(node)
-                print (rw)
-                return rw
+        if problem.isGoalState(currState):  # 判断当前状态是否为目标状态
+            return actions
 
-            sucessors = problem.getSuccessors(node[0])
-            for sucessor in sucessors:
-                sucessor = list(sucessor)
-                sucessor[2] += node[2]
-                sucessor.append(node)
-                fx = sucessor[2] + heuristic(sucessor[0], problem)
-                print
-                "f(x):", fx
-                sucessor.append(fx)
+        if currState not in visited:  # 当前状态未被访问
+            visited.add(currState)  # 将当前状态加入已访问集合中
 
-                frontier.append(sucessor)
+            for nextState, action, stepCost in problem.getSuccessors(currState):  # 遍历当前状态的所有子节点
+                nextActions = actions + [action]  # 更新路径
+                nextCost = currCost + stepCost + heuristic(nextState, problem)  # 更新总代价
+                pq.push((nextState, nextActions, currCost + stepCost), nextCost)  # 将子节点加入优先队列中
 
-            frontier = sorted(frontier, key=lambda n: n[4])
-    return False
+    return []  # 未找到路径，返回空列表
 
 
 
