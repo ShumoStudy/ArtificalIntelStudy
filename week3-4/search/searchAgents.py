@@ -277,6 +277,7 @@ class CornersProblem(search.SearchProblem):
     You must select a suitable state space and successor function
     """
 
+    # 初始化类，存储迷宫墙、起始位置和四个角落的位置，并检查每个角落是否有食物。
     def __init__(self, startingGameState: pacman.GameState):
         """
         Stores the walls, pacman's starting position and corners.
@@ -288,11 +289,13 @@ class CornersProblem(search.SearchProblem):
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print('Warning: no food in corner ' + str(corner))
-        self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
+        self._expanded = 0
+        # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
 
+    # 返回起始状态，即起始位置和已经访问的角落
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -302,6 +305,8 @@ class CornersProblem(search.SearchProblem):
         # util.raiseNotDefined()
         start_state = (self.startingPosition, [])
         return start_state
+
+    # 判断当前状态是否为目标状态，即已经访问了四个角落。
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.

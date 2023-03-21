@@ -133,42 +133,30 @@ def breadthFirstSearch(problem: SearchProblem):
                 queue.push((successor, actions + [action]))
 
     return []
+
+# question3
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    from queue import PriorityQueue
+    "YOUR CODE HERE"
+    # 用了一个集合 visited 来存储已经访问过的状态
+    # 我们避免了在队列中搜索来检查状态是否已经访问过的开销，从而使算法的时间复杂度更低。
+    from util import Queue
+    queue = Queue()
+    visited = set()
+    start_state = problem.getStartState()
+    queue.push((start_state, []))
+    visited.add(start_state)
 
-    # Frontier is a priority queue ordered by path cost
-    frontier = PriorityQueue()
-    # Add the starting node to the frontier
-    start_node = (problem.getStartState(), [], 0)
-    frontier.put(start_node, 0)
+    while not queue.isEmpty():
+        state, actions = queue.pop()
+        if problem.isGoalState(state):
+            return actions
+        for successor, action, step_cost in problem.getSuccessors(state):
+            if successor not in visited:
+                visited.add(successor)
+                queue.push((successor, actions + [action]))
 
-    # Set of explored states
-    explored = set()
-
-    while not frontier.empty():
-        # Pop the node with the lowest path cost
-        node, path, path_cost = frontier.get()
-
-        # Check if the current node is the goal state
-        if problem.isGoalState(node):
-            return path
-
-        # Add the current node to the explored set
-        explored.add(node)
-
-        # Expand the current node and add its children to the frontier
-        for child, action, step_cost in problem.getSuccessors(node):
-            if child not in explored:
-                # Calculate the total path cost to the child
-                child_path_cost = path_cost + step_cost
-                # Create a new path to the child by adding the action to the current path
-                child_path = path + [action]
-                # Add the child to the frontier with the total path cost as priority
-                frontier.put((child, child_path, child_path_cost), child_path_cost)
-
-    # If the frontier is empty and no goal was found, return None
-    return None
+    return []
 
 
 def nullHeuristic(state, problem=None):
@@ -178,6 +166,7 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+# question4
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
@@ -201,8 +190,6 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
                 pq.push((nextState, nextActions, currCost + stepCost), nextCost)  # 将子节点加入优先队列中
 
     return []  # 未找到路径，返回空列表
-
-
 
 # Abbreviations
 bfs = breadthFirstSearch
