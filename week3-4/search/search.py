@@ -133,6 +133,8 @@ def breadthFirstSearch(problem: SearchProblem):
                 queue.push((successor, actions + [action]))
 
     return []
+
+# question3
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     from queue import PriorityQueue
